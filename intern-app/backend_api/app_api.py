@@ -25,10 +25,9 @@ github = oauth.register (
     access_token_params = None,
     authorize_url = 'https://github.com/login/oauth/authorize',
     authorize_params = None,
-    api_base_url = 'https://api.github.com/',
     client_kwargs = {'scope': 'user:email'},
 )
-
+api_base_url = 'https://api.github.com/',
 
 
 '''
@@ -49,7 +48,7 @@ Return: return the github authorize page if logged in successfully
 def github_login():
     github=oauth.create_client('github')
     github_uri=url_for('github_authorize',_external=True)
-    github_repo=url_for('repo',external=True)
+    #github_repo=url_for('repo',external=True)
     return github.authorize_redirect(github_uri)
     #return github.repo(github_repo)
 '''
@@ -62,19 +61,10 @@ def github_authorize():
     github=oauth.create_client('github')
     token=github.authorize_access_token()
     resp=github.get('user').json()
-    return resp
-
-"""
-Definiton: Github Repositiries shown after successful login and authorization
-Route: https://<localhost>:5000/repo
-Return : Return the user repositires info in dictionary format.
-"""
-@app.route('/repo')
-def repo(resp):
-    #resp=github_authorize()
-    url = api_base_url + '/users/{username}/repos?per_page=500'.format(username=resp['login'])
+    usr=resp['login']
+    url = 'https://api.github.com/' + '/users/{username}/repos?per_page=500'.format(username=usr).json()
     repo_info = []
-    for each_repo in resp:
+    for each_repo in url:
         repo_dict = {}
         repo_dict['repo_name'] = each_repo['full_name']
         repo_dict['repo_link'] = each_repo['html_url']
@@ -82,8 +72,15 @@ def repo(resp):
         repo_dict['owner_fullname'] = each_repo['owner']['login']
         repo_dict['html_url'] = each_repo['html_url']
         repo_info.append(repo_dict)
-    return repo_info
+    return usr
 
+"""
+Definiton: Github Repositiries shown after successful login and authorization
+Route: https://<localhost>:5000/repo
+Return : Return the user repositires info in dictionary format.
+"""
+'''@app.route('/repo')
+def repo(resp):'''
 
 if __name__=='__main__':
     app.run(debug=True)
